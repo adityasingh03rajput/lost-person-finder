@@ -20,7 +20,7 @@ A web-based system for reporting and finding missing persons using facial recogn
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/lost-person-finder.git
+   git clone https://github.com/ADITYASINGH03RAJPUT/lost-person-finder.git
    cd lost-person-finder
    ```
 
@@ -161,7 +161,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 If you encounter any issues or have questions:
-1. Check the [Issues](https://github.com/yourusername/lost-person-finder/issues) page
+1. Check the [Issues](https://github.com/ADITYASINGH03RAJPUT/lost-person-finder/issues) page
 2. Create a new issue with detailed information
 3. Contact the development team
 
