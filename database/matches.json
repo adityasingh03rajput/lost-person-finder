@@ -1,0 +1,16 @@
+{
+  "verified_matches": [
+    {
+      "id": 1,
+      "missing_person_id": "mp_001",
+      "found_person_id": "fp_001",
+      "confidence_score": 0.85,
+      "verified_by": "System Admin",
+      "verification_date": "2025-01-29T15:30:00Z",
+      "status": "verified",
+      "notes": "High confidence match confirmed by facial recognition"
+    }
+  ],
+  "pending_matches": [],
+  "rejected_matches": []
+}

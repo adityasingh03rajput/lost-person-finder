@@ -1,0 +1,58 @@
+{
+  "missing_persons": [
+    {
+      "id": "mp_001",
+      "reporter_name": "John Smith",
+      "reporter_contact": "+1234567890",
+      "relationship": "parent",
+      "missing_name": "Sarah Smith",
+      "age": 16,
+      "gender": "female",
+      "last_seen_date": "2025-01-28",
+      "last_seen_location": "Downtown Mall, Main Street",
+      "height": 165,
+      "clothing": "Blue jeans, red hoodie, white sneakers",
+      "additional_details": "Has a small scar on left cheek, wears glasses",
+      "photos": ["uploads/missing/mp_001_1.jpg", "uploads/missing/mp_001_2.jpg"],
+      "status": "active",
+      "created_at": "2025-01-28T10:30:00Z",
+      "updated_at": "2025-01-28T10:30:00Z"
+    },
+    {
+      "id": "mp_002",
+      "reporter_name": "Maria Garcia",
+      "reporter_contact": "+1234567891",
+      "relationship": "spouse",
+      "missing_name": "Carlos Garcia",
+      "age": 45,
+      "gender": "male",
+      "last_seen_date": "2025-01-30",
+      "last_seen_location": "Central Park, near the lake",
+      "height": 175,
+      "clothing": "Black jacket, dark jeans, brown boots",
+      "additional_details": "Has diabetes, needs medication",
+      "photos": ["uploads/missing/mp_002_1.jpg"],
+      "status": "active",
+      "created_at": "2025-01-30T14:15:00Z",
+      "updated_at": "2025-01-30T14:15:00Z"
+    }
+  ],
+  "found_persons": [
+    {
+      "id": "fp_001",
+      "finder_name": "Alice Johnson",
+      "finder_contact": "+1234567892",
+      "found_date": "2025-01-29",
+      "found_location": "City Hospital Emergency Room",
+      "current_location": "City Hospital Room 205",
+      "condition": "safe",
+      "estimated_age": 17,
+      "estimated_gender": "female",
+      "notes": "Found unconscious, now recovering. Has no memory of recent events.",
+      "photos": ["uploads/found/fp_001_1.jpg"],
+      "status": "unidentified",
+      "created_at": "2025-01-29T08:45:00Z",
+      "updated_at": "2025-01-29T08:45:00Z"
+    }
+  ]
+}

@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost Person Finder - Facial Recognition App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .nav-btn {
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .section {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .section.active {
+            display: block;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+        }
+
+        .btn-success {
+            background: #28a745;
+        }
+
+        .upload-area {
+            border: 3px dashed #ddd;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8ebff;
+        }
+
+        .photo-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .photo-item {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-item .remove-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .search-results {
+            margin-top: 30px;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
+
+        .result-photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .result-info h3 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .confidence-score {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .match-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .notifications {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .notification {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .notification.error {
+            background: #dc3545;
+        }
+
+        .notification.warning {
+            background: #ffc107;
+            color: #333;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .emergency-contact {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .search-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .chat-container {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow-y: auto;
+            padding: 15px;
+            background: #f8f9fa;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .message.sent {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.received {
+            background: white;
+            border: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            .grid-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .main-nav {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .search-filters {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 Lost Person Finder</h1>
+            <p>Reuniting families through advanced facial recognition technology</p>
+        </div>
+
+        <div class="main-nav">
+            <button class="nav-btn active" onclick="showSection('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showSection('report-missing')">Report Missing</button>
+            <button class="nav-btn" onclick="showSection('report-found')">Report Found</button>
+            <button class="nav-btn" onclick="showSection('search')">Search</button>
+            <button class="nav-btn" onclick="showSection('matches')">My Matches</button>
+            <button class="nav-btn" onclick="showSection('profile')">Profile</button>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section active">
+            <h2>Dashboard</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalMissing">0</div>
+                    <div>Total Missing Reports</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalFound">0</div>
+                    <div>People Found</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalMatches">0</div>
+                    <div>Successful Matches</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todayReports">0</div>
+                    <div>Reports Today</div>
+                </div>
+            </div>
+
+            <div class="emergency-contact">
+                <h3>🚨 Emergency Contacts</h3>
+                <p><strong>Police:</strong> 100 | <strong>Emergency:</strong> 108 | <strong>Child Helpline:</strong> 1098</p>
+            </div>
+
+            <div class="grid-layout">
+                <div>
+                    <h3>Recent Missing Reports</h3>
+                    <div id="recentMissing"></div>
+                </div>
+                <div>
+                    <h3>Recent Found Reports</h3>
+                    <div id="recentFound"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Missing Section -->
+        <div id="report-missing" class="section">
+            <h2>Report Missing Person</h2>
+            <form id="missingPersonForm">
+                <div class="grid-layout">
+                    <div>
+                        <div class="form-group">
+                            <label>Your Name *</label>
+                            <input type="text" name="reporterName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Your Relationship to Missing Person *</label>
+                            <select name="relationship" required>
+                                <option value="">Select relationship</option>
+                                <option value="parent">Parent</option>
+                                <option value="sibling">Sibling</option>
+                                <option value="spouse">Spouse</option>
+                                <option value="child">Child</option>
+                                <option value="relative">Relative</option>
+                                <option value="friend">Friend</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Your Contact Number *</label>
+                            <input type="tel" name="reporterContact" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Missing Person's Name *</label>
+                            <input type="text" name="missingName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Age *</label>
+                            <input type="number" name="age" min="0" max="120" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Gender *</label>
+                            <select name="gender" required>
+                                <option value="">Select gender</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <label>Last Seen Date *</label>
+                            <input type="date" name="lastSeenDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Last Seen Location *</label>
+                            <input type="text" name="lastSeenLocation" placeholder="Enter detailed location" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Height (cm)</label>
+                            <input type="number" name="height" min="50" max="250">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Clothing Description</label>
+                            <textarea name="clothing" rows="3" placeholder="Describe what they were wearing"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Additional Details</label>
+                            <textarea name="additionalDetails" rows="4" placeholder="Any other identifying features, medical conditions, etc."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Photos *</label>
+                    <div class="upload-area" onclick="document.getElementById('missingPhotos').click()">
+                        <p>📷 Click to upload or drag photos here</p>
+                        <p style="font-size: 14px; color: #666;">Support: JPG, PNG, WebP (Max 5MB each)</p>
+                    </div>
+                    <input type="file" id="missingPhotos" multiple accept="image/*" style="display: none;">
+                    <div id="missingPhotoPreview" class="photo-preview"></div>
+                </div>
+
+                <button type="submit" class="btn">🚨 Submit Missing Person Report</button>
+            </form>
+        </div>
+
+        <!-- Report Found Section -->
+        <div id="report-found" class="section">
+            <h2>Report Found Person</h2>
+            <form id="foundPersonForm">
+                <div class="grid-layout">
+                    <div>
+                        <div class="form-group">
+                            <label>Your Name *</label>
+                            <input type="text" name="finderName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Your Contact Number *</label>
+                            <input type="tel" name="finderContact" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Found Date *</label>
+                            <input type="date" name="foundDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Found Location *</label>
+                            <input type="text" name="foundLocation" placeholder="Where did you find this person?" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Person's Condition *</label>
+                            <select name="condition" required>
+                                <option value="">Select condition</option>
+                                <option value="safe">Safe and healthy</option>
+                                <option value="injured">Injured but conscious</option>
+                                <option value="medical">Needs medical attention</option>
+                                <option value="unconscious">Unconscious</option>
+                                <option value="confused">Confused/Disoriented</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="form-group">
+                            <label>Estimated Age</label>
+                            <input type="number" name="estimatedAge" min="0" max="120">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Estimated Gender</label>
+                            <select name="estimatedGender">
+                                <option value="">Unknown</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Current Location of Person</label>
+                            <input type="text" name="currentLocation" placeholder="Where is the person now?">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Additional Notes</label>
+                            <textarea name="notes" rows="4" placeholder="Any other details about the person or circumstances"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload Photos *</label>
+                    <div class="upload-area" onclick="document.getElementById('foundPhotos').click()">
+                        <p>📷 Click to upload or drag photos here</p>
+                        <p style="font-size: 14px; color: #666;">Clear face photos help with better matching</p>
+                    </div>
+                    <input type="file" id="foundPhotos" multiple accept="image/*" style="display: none;">
+                    <div id="foundPhotoPreview" class="photo-preview"></div>
+                </div>
+
+                <button type="submit" class="btn">👤 Submit Found Person Report</button>
+            </form>
+        </div>
+
+        <!-- Search Section -->
+        <div id="search" class="section">
+            <h2>Search Database</h2>
+            
+            <div class="search-filters">
+                <div class="filter-group">
+                    <label>Search Type</label>
+                    <select id="searchType">
+                        <option value="missing">Missing Persons</option>
+                        <option value="found">Found Persons</option>
+                        <option value="both">Both</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Age Range</label>
+                    <input type="range" id="ageRange" min="0" max="100" value="50">
+                    <span id="ageValue">±10 years from 50</span>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Gender</label>
+                    <select id="genderFilter">
+                        <option value="all">All</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>Location</label>
+                    <input type="text" id="locationFilter" placeholder="Enter location">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Search by Photo</label>
+                <div class="upload-area" onclick="document.getElementById('searchPhoto').click()">
+                    <p>📷 Upload photo to search for similar faces</p>
+                </div>
+                <input type="file" id="searchPhoto" accept="image/*" style="display: none;">
+            </div>
+
+            <button class="btn" onclick="performSearch()">🔍 Search Database</button>
+
+            <div class="loading" id="searchLoading">
+                <div class="spinner"></div>
+                <p>Analyzing photos and searching database...</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <div class="search-results" id="searchResults"></div>
+        </div>
+
+        <!-- Matches Section -->
+        <div id="matches" class="section">
+            <h2>My Matches</h2>
+            <div id="matchesList"></div>
+        </div>
+
+        <!-- Profile Section -->
+        <div id="profile" class="section">
+            <h2>User Profile</h2>
+            <form id="profileForm">
+                <div class="grid-layout">
+                    <div>
+                        <div class="form-group">
+                            <label>Full Name</label>
+                            <input type="text" name="fullName" id="profileName">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="email" id="profileEmail">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" name="phone" id="profilePhone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Address</label>
+                            <textarea name="address" id="profileAddress" rows="3"></textarea>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="form-group">
+                            <label>Emergency Contact Name</label>
+                            <input type="text" name="emergencyName" id="emergencyName">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Emergency Contact Phone</label>
+                            <input type="tel" name="emergencyPhone" id="emergencyPhone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Notification Preferences</label>
+                            <div>
+                                <label><input type="checkbox" name="emailNotifications" checked> Email notifications</label><br>
+                                <label><input type="checkbox" name="smsNotifications" checked> SMS notifications</label><br>
+                                <label><input type="checkbox" name="pushNotifications" checked> Push notifications</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn">💾 Save Profile</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Match Details Modal -->
+    <div id="matchModal" class="modal">
+        <div class="modal-content">
+            <h3>Potential Match Found!</h3>
+            <div id="matchDetails"></div>
+            <div style="margin-top: 20px;">
+                <button class="btn btn-success" onclick="confirmMatch()">✅ Confirm Match</button>
+                <button class="btn btn-secondary" onclick="closeModal()">❌ Not a Match</button>
+                <button class="btn" onclick="requestMoreInfo()">📞 Request More Info</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chatModal" class="modal">
+        <div class="modal-content">
+            <h3>💬 Contact Match</h3>
+            <div class="chat-container" id="chatContainer"></div>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chatInput" placeholder="Type your message..." style="flex: 1;">
+                <button class="btn" onclick="sendMessage()">Send</button>
+            </div>
+            <div style="margin-top: 15px;">
+                <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Container -->
+    <div class="notifications" id="notifications"></div>
+
+    <script>
+        // Application State
+        let appState = {
+            currentUser: {
+                id: generateId(),
+                name: '',
+                email: '',
+                phone: '',
+                address: '',
+                emergencyContact: {}
+            },
+            missingPersons: [],
+            foundPersons: [],
+            matches: [],
+            uploadedPhotos: {
+                missing: [],
+                found: [],
+                search: null
+            }
+        };
+
+        // Simulated facial recognition database
+        let faceDatabase = new Map();
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupEventListeners();
+            loadSampleData();
+        });
+
+        function generateId() {
+            return 'id_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        function initializeApp() {
+            updateDashboardStats();
+            showSection('dashboard');
+        }
+
+        function setupEventListeners() {
+            // File upload handlers
+            setupFileUpload('missingPhotos', 'missingPhotoPreview', 'missing');
+            setupFileUpload('foundPhotos', 'foundPhotoPreview', 'found');
+            setupFileUpload('searchPhoto', null, 'search');
+
+            // Form submissions
+            document.getElementById('missingPersonForm').addEventListener('submit', handleMissingPersonSubmit);
+            document.getElementById('foundPersonForm').addEventListener('submit', handleFoundPersonSubmit);
+            document.getElementById('profileForm').addEventListener('submit', handleProfileSubmit);
+
+            // Age range slider
+            document.getElementById('ageRange').addEventListener('input', function(e) {
+                document.getElementById('ageValue').textContent = `±10 years from ${e.target.value}`;
+            });
+        }
+
+        function setupFileUpload(inputId, previewId, type) {
+            const input = document.getElementById(inputId);
+            const preview = previewId ? document.getElementById(previewId) : null;
+
+            input.addEventListener('change', function(e) {
+                handleFileUpload(e.target.files, preview, type);
+            });
+
+            if (preview) {
+                const uploadArea = preview.closest('.section').querySelector('.upload-area');
+                setupDragAndDrop(uploadArea, input, preview, type);
+            }
+        }
+
+        function setupDragAndDrop(uploadArea, input, preview, type) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                handleFileUpload(e.dataTransfer.files, preview, type);
+            });
+        }
+
+        function handleFileUpload(files, preview, type) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+            Array.from(files).forEach(file => {
+                if (!validTypes.includes(file.type)) {
+                    showNotification('Please upload only JPG, PNG, or WebP images', 'error');
+                    return;
+                }
+
+                if (file.size > maxSize) {
+                    showNotification('File size should be less than 5MB', 'error');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const photoData = {
+                        id: generateId(),
+                        name: file.name,
+                        data: e.target.result,
+                        file: file
+                    };
+
+                    appState.uploadedPhotos[type].push(photoData);
+                    
+                    if (preview) {
+                        addPhotoToPreview(photoData, preview, type);
+                    }
+
+                    // Simulate facial recognition processing
+                    processFacialRecognition(photoData, type);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function addPhotoToPreview(photoData, preview, type) {
+            const photoItem = document.createElement('div');
+            photoItem.className = 'photo-item';
+            photoItem.innerHTML = `
+                <img src="${photoData.data}" alt="${photoData.name}">
+                <button class="remove-btn" onclick="removePhoto('${photoData.id}', '${type}')">×</button>
+            `;
+            preview.appendChild(photoItem);
+        }
+
+        function removePhoto(photoId, type) {
+            appState.uploadedPhotos[type] = appState.uploadedPhotos[type].filter(p => p.id !== photoId);
+            updatePhotoPreview(type);
+        }
+
+        function updatePhotoPreview(type) {
+            const previewId = type + 'PhotoPreview';
+            const preview = document.getElementById(previewId);
+            if (!preview) return;
+
+            preview.innerHTML = '';
+            appState.uploadedPhotos[type].forEach(photo => {
+                addPhotoToPreview(photo, preview, type);
+            });
+        }
+
+        function processFacialRecognition(photoData, type) {
+            // Simulate facial recognition processing
+            setTimeout(() => {
+                const faceId = generateFaceId(photoData.data);
+                faceDatabase.set(faceId, {
+                    photoId: photoData.id,
+                    type: type,
+                    features: generateFaceFeatures(),
+                    timestamp: new Date()
+                });
+
+                if (type === 'search') {
+                    // Auto-trigger search when search photo is uploaded
+                    performFacialRecognitionSearch(faceId);
+                }
+            }, 1000);
+        }
+
+        function generateFaceId(imageData) {
+            // Simple hash function for demo - in real app, this would be actual face encoding
+            let hash = 0;
+            for (let i = 0; i < imageData.length; i++) {
+                const char = imageData.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return 'face_' + Math.abs(hash).toString(36);
+        }
+
+        function generateFaceFeatures() {
+            // Simulate face feature vector
+            return Array.from({length: 128}, () => Math.random());
+        }
+
+        function calculateSimilarity(features1, features2) {
+            // Simple cosine similarity calculation
+            let dotProduct = 0;
+            let norm1 = 0;
+            let norm2 = 0;
+
+            for (let i = 0; i < features1.length; i++) {
+                dotProduct += features1[i] * features2[i];
+                norm1 += features1[i] * features1[i];
+                norm2 += features2[i] * features2[i];
+            }
+
+            return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+        }
+
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update navigation
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Update section-specific data
+            if (sectionId === 'dashboard') {
+                updateDashboardStats();
+                loadRecentReports();
+            } else if (sectionId === 'matches') {
+                loadMatches();
+            }
+        }
+
+        function handleMissingPersonSubmit(e) {
+            e.preventDefault();
+            
+            if (appState.uploadedPhotos.missing.length === 0) {
+                showNotification('Please upload at least one photo', 'error');
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            const missingPerson = {
+                id: generateId(),
+                type: 'missing',
+                reporterId: appState.currentUser.id,
+                reporterName: formData.get('reporterName'),
+                reporterContact: formData.get('reporterContact'),
+                relationship: formData.get('relationship'),
+                name: formData.get('missingName'),
+                age: parseInt(formData.get('age')),
+                gender: formData.get('gender'),
+                lastSeenDate: formData.get('lastSeenDate'),
+                lastSeenLocation: formData.get('lastSeenLocation'),
+                height: formData.get('height'),
+                clothing: formData.get('clothing'),
+                additionalDetails: formData.get('additionalDetails'),
+                photos: [...appState.uploadedPhotos.missing],
+                reportDate: new Date().toISOString(),
+                status: 'active'
+            };
+
+            appState.missingPersons.push(missingPerson);
+            
+            // Check for immediate matches
+            checkForMatches(missingPerson);
+            
+            showNotification('Missing person report submitted successfully! We will notify you of any matches.', 'success');
+            e.target.reset();
+            appState.uploadedPhotos.missing = [];
+            updatePhotoPreview('missing');
+            updateDashboardStats();
+        }
+
+        function handleFoundPersonSubmit(e) {
+            e.preventDefault();
+            
+            if (appState.uploadedPhotos.found.length === 0) {
+                showNotification('Please upload at least one photo', 'error');
+                return;
+            }
+
+            const formData = new FormData(e.target);
+            const foundPerson = {
+                id: generateId(),
+                type: 'found',
+                finderId: appState.currentUser.id,
+                finderName: formData.get('finderName'),
+                finderContact: formData.get('finderContact'),
+                foundDate: formData.get('foundDate'),
+                foundLocation: formData.get('foundLocation'),
+                currentLocation: formData.get('currentLocation'),
+                condition: formData.get('condition'),
+                estimatedAge: formData.get('estimatedAge'),
+                estimatedGender: formData.get('estimatedGender'),
+                notes: formData.get('notes'),
+                photos: [...appState.uploadedPhotos.found],
+                reportDate: new Date().toISOString(),
+                status: 'active'
+            };
+
+            appState.foundPersons.push(foundPerson);
+            
+            // Check for immediate matches
+            checkForMatches(foundPerson);
+            
+            showNotification('Found person report submitted successfully! We will check for matches.', 'success');
+            e.target.reset();
+            appState.uploadedPhotos.found = [];
+            updatePhotoPreview('found');
+            updateDashboardStats();
+        }
+
+        function handleProfileSubmit(e) {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            appState.currentUser.name = formData.get('fullName');
+            appState.currentUser.email = formData.get('email');
+            appState.currentUser.phone = formData.get('phone');
+            appState.currentUser.address = formData.get('address');
+            appState.currentUser.emergencyContact = {
+                name: formData.get('emergencyName'),
+                phone: formData.get('emergencyPhone')
+            };
+            
+            showNotification('Profile updated successfully!', 'success');
+        }
+
+        function checkForMatches(newReport) {
+            const oppositeType = newReport.type === 'missing' ? 'found' : 'missing';
+            const oppositeReports = newReport.type === 'missing' ? appState.foundPersons : appState.missingPersons;
+
+            oppositeReports.forEach(report => {
+                if (report.status !== 'active') return;
+
+                // Check for potential matches based on facial recognition
+                const similarity = compareFaces(newReport.photos, report.photos);
+                
+                if (similarity > 0.75) { // 75% similarity threshold
+                    const match = {
+                        id: generateId(),
+                        report1: newReport,
+                        report2: report,
+                        similarity: similarity,
+                        status: 'pending',
+                        createdDate: new Date().toISOString()
+                    };
+
+                    appState.matches.push(match);
+                    showMatchNotification(match);
+                }
+            });
+        }
+
+        function compareFaces(photos1, photos2) {
+            let maxSimilarity = 0;
+
+            photos1.forEach(photo1 => {
+                photos2.forEach(photo2 => {
+                    const faceId1 = generateFaceId(photo1.data);
+                    const faceId2 = generateFaceId(photo2.data);
+                    
+                    const features1 = faceDatabase.get(faceId1)?.features || generateFaceFeatures();
+                    const features2 = faceDatabase.get(faceId2)?.features || generateFaceFeatures();
+                    
+                    const similarity = calculateSimilarity(features1, features2);
+                    maxSimilarity = Math.max(maxSimilarity, similarity);
+                });
+            });
+
+            return maxSimilarity;
+        }
+
+        function showMatchNotification(match) {
+            const confidence = Math.round(match.similarity * 100);
+            showNotification(`🎉 Potential match found! ${confidence}% confidence. Check your matches section.`, 'success');
+            
+            // Auto-show match modal for high confidence matches
+            if (match.similarity > 0.9) {
+                setTimeout(() => showMatchModal(match), 2000);
+            }
+        }
+
+        function showMatchModal(match) {
+            const modal = document.getElementById('matchModal');
+            const details = document.getElementById('matchDetails');
+            
+            const report1 = match.report1;
+            const report2 = match.report2;
+            const confidence = Math.round(match.similarity * 100);
+
+            details.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>${report1.type === 'missing' ? 'Missing Person' : 'Found Person'}</h4>
+                        <img src="${report1.photos[0].data}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
+                        <p><strong>Name:</strong> ${report1.name || 'Unknown'}</p>
+                        <p><strong>Age:</strong> ${report1.age || report1.estimatedAge || 'Unknown'}</p>
+                        <p><strong>Contact:</strong> ${report1.reporterContact || report1.finderContact}</p>
+                    </div>
+                    <div>
+                        <h4>${report2.type === 'missing' ? 'Missing Person' : 'Found Person'}</h4>
+                        <img src="${report2.photos[0].data}" style="width: 150px; height: 150px; object-fit: cover; border-radius: 10px;">
+                        <p><strong>Name:</strong> ${report2.name || 'Unknown'}</p>
+                        <p><strong>Age:</strong> ${report2.age || report2.estimatedAge || 'Unknown'}</p>
+                        <p><strong>Contact:</strong> ${report2.reporterContact || report2.finderContact}</p>
+                    </div>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <div class="confidence-score">Match Confidence: ${confidence}%</div>
+                </div>
+            `;
+
+            modal.style.display = 'block';
+            modal.dataset.matchId = match.id;
+        }
+
+        function performSearch() {
+            const searchType = document.getElementById('searchType').value;
+            const ageRange = parseInt(document.getElementById('ageRange').value);
+            const gender = document.getElementById('genderFilter').value;
+            const location = document.getElementById('locationFilter').value;
+
+            showLoading(true);
+
+            setTimeout(() => {
+                let results = [];
+
+                if (searchType === 'missing' || searchType === 'both') {
+                    results = results.concat(appState.missingPersons.filter(person => 
+                        matchesFilters(person, ageRange, gender, location)
+                    ));
+                }
+
+                if (searchType === 'found' || searchType === 'both') {
+                    results = results.concat(appState.foundPersons.filter(person => 
+                        matchesFilters(person, ageRange, gender, location)
+                    ));
+                }
+
+                // If search photo is uploaded, sort by facial similarity
+                if (appState.uploadedPhotos.search.length > 0) {
+                    results = results.map(person => ({
+                        ...person,
+                        similarity: compareFaces(appState.uploadedPhotos.search, person.photos)
+                    })).sort((a, b) => b.similarity - a.similarity);
+                }
+
+                displaySearchResults(results);
+                showLoading(false);
+            }, 2000);
+        }
+
+        function performFacialRecognitionSearch(searchFaceId) {
+            const searchFeatures = faceDatabase.get(searchFaceId)?.features;
+            if (!searchFeatures) return;
+
+            let matches = [];
+
+            // Search through all reports
+            [...appState.missingPersons, ...appState.foundPersons].forEach(person => {
+                person.photos.forEach(photo => {
+                    const faceId = generateFaceId(photo.data);
+                    const features = faceDatabase.get(faceId)?.features;
+                    
+                    if (features) {
+                        const similarity = calculateSimilarity(searchFeatures, features);
+                        if (similarity > 0.6) { // 60% threshold for search results
+                            matches.push({
+                                ...person,
+                                similarity: similarity,
+                                matchedPhoto: photo
+                            });
+                        }
+                    }
+                });
+            });
+
+            matches.sort((a, b) => b.similarity - a.similarity);
+            displaySearchResults(matches.slice(0, 10)); // Show top 10 matches
+        }
+
+        function matchesFilters(person, ageRange, gender, location) {
+            const personAge = person.age || person.estimatedAge;
+            const personGender = person.gender || person.estimatedGender;
+            const personLocation = person.lastSeenLocation || person.foundLocation || '';
+
+            // Age filter
+            if (personAge && Math.abs(personAge - ageRange) > 10) {
+                return false;
+            }
+
+            // Gender filter
+            if (gender !== 'all' && personGender && personGender !== gender) {
+                return false;
+            }
+
+            // Location filter
+            if (location && !personLocation.toLowerCase().includes(location.toLowerCase())) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function displaySearchResults(results) {
+            const container = document.getElementById('searchResults');
+            
+            if (results.length === 0) {
+                container.innerHTML = '<p>No matches found. Try adjusting your search criteria.</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <h3>Search Results (${results.length} found)</h3>
+                ${results.map(person => `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <img src="${person.photos[0].data}" alt="Photo" class="result-photo">
+                            <div class="result-info">
+                                <h3>${person.name || 'Unknown Person'}</h3>
+                                <p><strong>Age:</strong> ${person.age || person.estimatedAge || 'Unknown'}</p>
+                                <p><strong>Gender:</strong> ${person.gender || person.estimatedGender || 'Unknown'}</p>
+                                <p><strong>Location:</strong> ${person.lastSeenLocation || person.foundLocation}</p>
+                                <p><strong>Status:</strong> ${person.type === 'missing' ? 'Missing' : 'Found'}</p>
+                                ${person.similarity ? `<span class="confidence-score">${Math.round(person.similarity * 100)}% Match</span>` : ''}
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="btn btn-success" onclick="initiateContact('${person.id}')">📞 Contact</button>
+                            <button class="btn" onclick="viewDetails('${person.id}')">👁️ View Details</button>
+                            ${person.similarity > 0.8 ? `<button class="btn" onclick="reportMatch('${person.id}')">✅ Report Match</button>` : ''}
+                        </div>
+                    </div>
+                `).join('')}
+            `;
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('searchLoading');
+            if (show) {
+                loading.style.display = 'block';
+                // Animate progress bar
+                const progressFill = loading.querySelector('.progress-fill');
+                let width = 0;
+                const interval = setInterval(() => {
+                    width += 10;
+                    progressFill.style.width = width + '%';
+                    if (width >= 100) {
+                        clearInterval(interval);
+                    }
+                }, 200);
+            } else {
+                loading.style.display = 'none';
+            }
+        }
+
+        function loadMatches() {
+            const container = document.getElementById('matchesList');
+            
+            if (appState.matches.length === 0) {
+                container.innerHTML = '<p>No matches found yet. Keep checking back!</p>';
+                return;
+            }
+
+            container.innerHTML = appState.matches.map(match => {
+                const report1 = match.report1;
+                const report2 = match.report2;
+                const confidence = Math.round(match.similarity * 100);
+
+                return `
+                    <div class="result-card">
+                        <div class="result-header">
+                            <div style="display: flex; gap: 20px;">
+                                <div>
+                                    <img src="${report1.photos[0].data}" alt="Photo 1" class="result-photo">
+                                    <p><strong>${report1.type === 'missing' ? 'Missing' : 'Found'}</strong></p>
+                                </div>
+                                <div>
+                                    <img src="${report2.photos[0].data}" alt="Photo 2" class="result-photo">
+                                    <p><strong>${report2.type === 'missing' ? 'Missing' : 'Found'}</strong></p>
+                                </div>
+                            </div>
+                            <div class="result-info">
+                                <h3>Potential Match</h3>
+                                <p><strong>Confidence:</strong> <span class="confidence-score">${confidence}%</span></p>
+                                <p><strong>Status:</strong> ${match.status}</p>
+                                <p><strong>Date:</strong> ${new Date(match.createdDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div class="match-actions">
+                            <button class="btn btn-success" onclick="showMatchModal(${JSON.stringify(match).replace(/"/g, '&quot;')})">👁️ View Match</button>
+                            <button class="btn" onclick="openChat('${match.id}')">💬 Start Chat</button>
+                            ${match.status === 'pending' ? `
+                                <button class="btn btn-success" onclick="confirmMatch('${match.id}')">✅ Confirm</button>
+                                <button class="btn btn-danger" onclick="rejectMatch('${match.id}')">❌ Reject</button>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateDashboardStats() {
+            document.getElementById('totalMissing').textContent = appState.missingPersons.length;
+            document.getElementById('totalFound').textContent = appState.foundPersons.length;
+            document.getElementById('totalMatches').textContent = appState.matches.filter(m => m.status === 'confirmed').length;
+            
+            const today = new Date().toDateString();
+            const todayReports = [...appState.missingPersons, ...appState.foundPersons]
+                .filter(report => new Date(report.reportDate).toDateString() === today).length;
+            document.getElementById('todayReports').textContent = todayReports;
+        }
+
+        function loadRecentReports() {
+            const recentMissing = document.getElementById('recentMissing');
+            const recentFound = document.getElementById('recentFound');
+
+            const latestMissing = appState.missingPersons.slice(-3).reverse();
+            const latestFound = appState.foundPersons.slice(-3).reverse();
+
+            recentMissing.innerHTML = latestMissing.length > 0 ? 
+                latestMissing.map(person => `
+                    <div class="result-card" style="margin-bottom: 10px;">
+                        <div class="result-header">
+                            <img src="${person.photos[0].data}" alt="Photo" class="result-photo" style="width: 50px; height: 50px;">
+                            <div>
+                                <h4>${person.name}</h4>
+                                <p>Age: ${person.age}, ${person.gender}</p>
+                                <p style="font-size: 12px; color: #666;">${new Date(person.reportDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '<p>No recent missing reports</p>';
+
+            recentFound.innerHTML = latestFound.length > 0 ? 
+                latestFound.map(person => `
+                    <div class="result-card" style="margin-bottom: 10px;">
+                        <div class="result-header">
+                            <img src="${person.photos[0].data}" alt="Photo" class="result-photo" style="width: 50px; height: 50px;">
+                            <div>
+                                <h4>Found Person</h4>
+                                <p>Est. Age: ${person.estimatedAge || 'Unknown'}</p>
+                                <p style="font-size: 12px; color: #666;">${new Date(person.reportDate).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('') : '<p>No recent found reports</p>';
+        }
+
+        function loadSampleData() {
+            // Add some sample data for demonstration
+            const sampleMissing = {
+                id: 'sample_missing_1',
+                type: 'missing',
+                reporterId: 'sample_reporter_1',
+                reporterName: 'John Doe',
+                reporterContact: '+91-9876543210',
+                relationship: 'parent',
+                name: 'Jane Doe',
+                age: 25,
+                gender: 'female',
+                lastSeenDate: '2025-07-30',
+                lastSeenLocation: 'Bhopal Railway Station',
+                height: '165',
+                clothing: 'Blue jeans and white t-shirt',
+                additionalDetails: 'Has a small scar on left hand',
+                photos: [{
+                    id: 'sample_photo_1',
+                    name: 'jane_photo.jpg',
+                    data: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjY2NjIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTgiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5KYW5lIERvZTwvdGV4dD48L3N2Zz4='
+                }],
+                reportDate: new Date().toISOString(),
+                status: 'active'
+            };
+
+            appState.missingPersons.push(sampleMissing);
+            updateDashboardStats();
+        }
+
+        function showNotification(message, type = 'success') {
+            const notifications = document.getElementById('notifications');
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+
+            notifications.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        function confirmMatch(matchId) {
+            const match = appState.matches.find(m => m.id === matchId);
+            if (match) {
+                match.status = 'confirmed';
+                match.report1.status = 'resolved';
+                match.report2.status = 'resolved';
+                
+                showNotification('Match confirmed! Both parties will be notified with contact information.', 'success');
+                closeModal();
+                loadMatches();
+                updateDashboardStats();
+            }
+        }
+
+        function rejectMatch(matchId) {
+            const match = appState.matches.find(m => m.id === matchId);
+            if (match) {
+                match.status = 'rejected';
+                showNotification('Match rejected.', 'warning');
+                loadMatches();
+            }
+        }
+
+        function openChat(matchId) {
+            const modal = document.getElementById('chatModal');
+            modal.style.display = 'block';
+            modal.dataset.matchId = matchId;
+            
+            // Load existing chat messages (simulated)
+            const chatContainer = document.getElementById('chatContainer');
+            chatContainer.innerHTML = `
+                <div class="message received">
+                    <p>Hello! I think we might have a match. Can you provide more details?</p>
+                    <small>10:30 AM</small>
+                </div>
+            `;
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message sent';
+            messageDiv.innerHTML = `
+                <p>${message}</p>
+                <small>${new Date().toLocaleTimeString()}</small>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            input.value = '';
+            
+            // Simulate response
+            setTimeout(() => {
+                const responseDiv = document.createElement('div');
+                responseDiv.className = 'message received';
+                responseDiv.innerHTML = `
+                    <p>Thank you for the information. Let me verify the details.</p>
+                    <small>${new Date().toLocaleTimeString()}</small>
+                `;
+                chatContainer.appendChild(responseDiv);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            }, 2000);
+        }
+
+        function closeModal() {
+            document.getElementById('matchModal').style.display = 'none';
+            document.getElementById('chatModal').style.display = 'none';
+        }
+
+        function initiateContact(personId) {
+            showNotification('Contact information shared! Please be respectful and verify identity.', 'success');
+        }
+
+        function viewDetails(personId) {
+            const person = [...appState.missingPersons, ...appState.foundPersons].find(p => p.id === personId);
+            if (person) {
+                alert(`Details for ${person.name || 'Unknown Person'}:\n\nType: ${person.type}\nAge: ${person.age || person.estimatedAge}\nLocation: ${person.lastSeenLocation || person.foundLocation}\nContact: ${person.reporterContact || person.finderContact}`);
+            }
+        }
+
+        function reportMatch(personId) {
+            showNotification('Match reported! We will review and contact both parties.', 'success');
+        }
+
+        function requestMoreInfo() {
+            showNotification('Request sent! The other party will be notified.', 'success');
+            closeModal();
+        }
+
+        // Click outside modal to close
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        }
+
+        // Handle Enter key in chat
+        document.getElementById('chatInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Advanced Features Implementation
+
+        // Geolocation tracking for better matching
+        function getCurrentLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    
+                    // Use coordinates for location-based matching
+                    console.log(`Current location: ${lat}, ${lon}`);
+                    showNotification('Location detected for better matching', 'success');
+                });
+            }
+        }
+
+        // Export functionality for authorities
+        function exportReports() {
+            const allReports = [...appState.missingPersons, ...appState.foundPersons];
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "Type,Name,Age,Gender,Location,Date,Contact,Status\n" +
+                allReports.map(report => [
+                    report.type,
+                    report.name || 'Unknown',
+                    report.age || report.estimatedAge || '',
+                    report.gender || report.estimatedGender || '',
+                    report.lastSeenLocation || report.foundLocation || '',
+                    new Date(report.reportDate).toLocaleDateString(),
+                    report.reporterContact || report.finderContact || '',
+                    report.status
+                ].join(',')).join('\n');
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `missing_persons_report_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showNotification('Report exported successfully!', 'success');
+        }
+
+        // Multi-language support
+        const translations = {
+            en: {
+                title: "Lost Person Finder",
+                subtitle: "Reuniting families through advanced facial recognition technology",
+                reportMissing: "Report Missing",
+                reportFound: "Report Found",
+                search: "Search",
+                matches: "My Matches"
+            },
+            hi: {
+                title: "खोए हुए व्यक्ति खोजक",
+                subtitle: "उन्नत चेहरा पहचान तकनीक के माध्यम से परिवारों को फिर से मिलाना",
+                reportMissing: "लापता की रिपोर्ट करें",
+                reportFound: "मिले हुए की रिपोर्ट करें",
+                search: "खोजें",
+                matches: "मेरे मैच"
+            }
+        };
+
+        function switchLanguage(lang) {
+            const t = translations[lang];
+            if (t) {
+                document.querySelector('.header h1').textContent = `🔍 ${t.title}`;
+                document.querySelector('.header p').textContent = t.subtitle;
+                // Update other UI elements...
+                showNotification(`Language switched to ${lang === 'hi' ? 'Hindi' : 'English'}`, 'success');
+            }
+        }
+
+        // Batch processing for multiple photos
+        function processBatchUpload(files, type) {
+            const maxFiles = 10;
+            if (files.length > maxFiles) {
+                showNotification(`Maximum ${maxFiles} photos allowed`, 'error');
+                return;
+            }
+
+            let processed = 0;
+            const total = files.length;
+
+            Array.from(files).forEach(file => {
+                setTimeout(() => {
+                    handleFileUpload([file], 
+                        document.getElementById(type + 'PhotoPreview'), type);
+                    processed++;
+                    
+                    if (processed === total) {
+                        showNotification(`All ${total} photos processed successfully!`, 'success');
+                    }
+                }, processed * 500); // Stagger uploads
+            });
+        }
+
+        // Advanced matching algorithms
+        function performAdvancedMatching() {
+            const allPersons = [...appState.missingPersons, ...appState.foundPersons];
+            
+            allPersons.forEach(person1 => {
+                allPersons.forEach(person2 => {
+                    if (person1.id !== person2.id && person1.type !== person2.type) {
+                        // Multi-factor matching
+                        let score = 0;
+                        
+                        // Facial similarity (60% weight)
+                        const facialScore = compareFaces(person1.photos, person2.photos);
+                        score += facialScore * 0.6;
+                        
+                        // Age similarity (15% weight)
+                        const age1 = person1.age || person1.estimatedAge;
+                        const age2 = person2.age || person2.estimatedAge;
+                        if (age1 && age2) {
+                            const ageScore = Math.max(0, 1 - Math.abs(age1 - age2) / 20);
+                            score += ageScore * 0.15;
+                        }
+                        
+                        // Gender match (10% weight)
+                        const gender1 = person1.gender || person1.estimatedGender;
+                        const gender2 = person2.gender || person2.estimatedGender;
+                        if (gender1 && gender2 && gender1 === gender2) {
+                            score += 0.1;
+                        }
+                        
+                        // Location proximity (15% weight)
+                        const loc1 = person1.lastSeenLocation || person1.foundLocation || '';
+                        const loc2 = person2.lastSeenLocation || person2.foundLocation || '';
+                        if (loc1 && loc2 && loc1.toLowerCase().includes(loc2.toLowerCase())) {
+                            score += 0.15;
+                        }
+                        
+                        if (score > 0.7) {
+                            // Create high-confidence match
+                            const existingMatch = appState.matches.find(m => 
+                                (m.report1.id === person1.id && m.report2.id === person2.id) ||
+                                (m.report1.id === person2.id && m.report2.id === person1.id)
+                            );
+                            
+                            if (!existingMatch) {
+                                const match = {
+                                    id: generateId(),
+                                    report1: person1,
+                                    report2: person2,
+                                    similarity: score,
+                                    status: 'pending',
+                                    createdDate: new Date().toISOString(),
+                                    matchType: 'advanced'
+                                };
+                                appState.matches.push(match);
+                            }
+                        }
+                    }
+                });
+            });
+        }
+
+        // Automated background processing
+        setInterval(() => {
+            performAdvancedMatching();
+            updateDashboardStats();
+        }, 30000); // Check every 30 seconds
+
+        // Emergency alert system
+        function triggerEmergencyAlert(report) {
+            if (report.age < 18 || report.estimatedAge < 18) {
+                showNotification('🚨 CHILD ALERT: Authorities will be notified immediately', 'error');
+                
+                // Simulate authority notification
+                setTimeout(() => {
+                    showNotification('Local authorities have been notified of missing child case', 'warning');
+                }, 2000);
+            }
+        }
+
+        // Quality scoring for photos
+        function assessPhotoQuality(photoData) {
+            // Simulate photo quality assessment
+            const quality = Math.random() * 0.4 + 0.6; // 60-100% quality
+            
+            if (quality < 0.7) {
+                showNotification('Photo quality is low. Consider uploading a clearer image for better matching.', 'warning');
+            }
+            
+            return quality;
+        }
+
+        // Duplicate detection
+        function detectDuplicateReports(newReport) {
+            const existingReports = newReport.type === 'missing' ? appState.missingPersons : appState.foundPersons;
+            
+            const duplicates = existingReports.filter(existing => {
+                const nameSimilar = existing.name && newReport.name && 
+                    existing.name.toLowerCase() === newReport.name.toLowerCase();
+                const ageSimilar = Math.abs((existing.age || existing.estimatedAge) - 
+                    (newReport.age || newReport.estimatedAge)) <= 2;
+                const faceSimilar = compareFaces(existing.photos, newReport.photos) > 0.95;
+                
+                return (nameSimilar && ageSimilar) || faceSimilar;
+            });
+            
+            if (duplicates.length > 0) {
+                showNotification('Similar report already exists. Please check existing reports first.', 'warning');
+                return true;
+            }
+            return false;
+        }
+
+        // Analytics and reporting
+        function generateAnalytics() {
+            const analytics = {
+                totalReports: appState.missingPersons.length + appState.foundPersons.length,
+                successRate: appState.matches.filter(m => m.status === 'confirmed').length / appState.matches.length,
+                averageMatchTime: calculateAverageMatchTime(),
+                ageDistribution: calculateAgeDistribution(),
+                locationHotspots: calculateLocationHotspots(),
+                timePatterns: calculateTimePatterns()
+            };
+            
+            console.log('Analytics:', analytics);
+            return analytics;
+        }
+
+        function calculateAverageMatchTime() {
+            const confirmedMatches = appState.matches.filter(m => m.status === 'confirmed');
+            if (confirmedMatches.length === 0) return 0;
+            
+            const totalTime = confirmedMatches.reduce((total, match) => {
+                const reportTime = new Date(match.report1.reportDate).getTime();
+                const matchTime = new Date(match.createdDate).getTime();
+                return total + (matchTime - reportTime);
+            }, 0);
+            
+            return totalTime / confirmedMatches.length / (1000 * 60 * 60); // Convert to hours
+        }
+
+        function calculateAgeDistribution() {
+            const allPersons = [...appState.missingPersons, ...appState.foundPersons];
+            const ageGroups = { '0-12': 0, '13-18': 0, '19-35': 0, '36-60': 0, '60+': 0 };
+            
+            allPersons.forEach(person => {
+                const age = person.age || person.estimatedAge;
+                if (age <= 12) ageGroups['0-12']++;
+                else if (age <= 18) ageGroups['13-18']++;
+                else if (age <= 35) ageGroups['19-35']++;
+                else if (age <= 60) ageGroups['36-60']++;
+                else ageGroups['60+']++;
+            });
+            
+            return ageGroups;
+        }
+
+        function calculateLocationHotspots() {
+            const allPersons = [...appState.missingPersons, ...appState.foundPersons];
+            const locations = {};
+            
+            allPersons.forEach(person => {
+                const location = person.lastSeenLocation || person.foundLocation || '';
+                const city = location.split(',')[0].trim().toLowerCase();
+                if (city) {
+                    locations[city] = (locations[city] || 0) + 1;
+                }
+            });
+            
+            return Object.entries(locations)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+        }
+
+        function calculateTimePatterns() {
+            const allPersons = [...appState.missingPersons, ...appState.foundPersons];
+            const timePatterns = { morning: 0, afternoon: 0, evening: 0, night: 0 };
+            
+            allPersons.forEach(person => {
+                const hour = new Date(person.reportDate).getHours();
+                if (hour >= 6 && hour < 12) timePatterns.morning++;
+                else if (hour >= 12 && hour < 18) timePatterns.afternoon++;
+                else if (hour >= 18 && hour < 22) timePatterns.evening++;
+                else timePatterns.night++;
+            });
+            
+            return timePatterns;
+        }
+
+        // Initialize geolocation on load
+        getCurrentLocation();
+
+        // Simulate real-time updates
+        setInterval(() => {
+            // Randomly generate new reports for demonstration
+            if (Math.random() < 0.1) { // 10% chance every 30 seconds
+                generateRandomReport();
+            }
+        }, 30000);
+
+        function generateRandomReport() {
+            const types = ['missing', 'found'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            const names = ['Alex Smith', 'Sarah Johnson', 'Michael Brown', 'Lisa Davis'];
+            const locations = ['Bhopal Station', 'MP Nagar', 'Arera Colony', 'New Market'];
+            
+            const report = {
+                id: generateId(),
+                type: type,
+                name: type === 'missing' ? names[Math.floor(Math.random() * names.length)] : undefined,
+                age: Math.floor(Math.random() * 60) + 20,
+                gender: ['male', 'female'][Math.floor(Math.random() * 2)],
+                lastSeenLocation: type === 'missing' ? locations[Math.floor(Math.random() * locations.length)] : undefined,
+                foundLocation: type === 'found' ? locations[Math.floor(Math.random() * locations.length)] : undefined,
+                reportDate: new Date().toISOString(),
+                status: 'active',
+                photos: [{
+                    id: generateId(),
+                    name: 'sample.jpg',
+                    data: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtc2l6ZT0iMTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5OZXcgUmVwb3J0PC90ZXh0Pjwvc3ZnPg=='
+                }]
+            };
+
+            if (type === 'missing') {
+                report.reporterName = 'Family Member';
+                report.reporterContact = '+91-' + Math.floor(Math.random() * 9000000000 + 1000000000);
+                appState.missingPersons.push(report);
+            } else {
+                report.finderName = 'Good Samaritan';
+                report.finderContact = '+91-' + Math.floor(Math.random() * 9000000000 + 1000000000);
+                appState.foundPersons.push(report);
+            }
+
+            showNotification(`New ${type} person report added to database`, 'success');
+            updateDashboardStats();
+        }
+
+        // Data persistence (for real implementation)
+        function saveToDatabase() {
+            // In real implementation, this would save to backend database
+            const data = {
+                missingPersons: appState.missingPersons,
+                foundPersons: appState.foundPersons,
+                matches: appState.matches,
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('Saving to database:', data);
+            showNotification('Data saved to database', 'success');
+        }
+
+        // Auto-save every 5 minutes
+        setInterval(saveToDatabase, 300000);
+
+        // Photo enhancement suggestions
+        function suggestPhotoImprovements(photos) {
+            const suggestions = [];
+            
+            photos.forEach(photo => {
+                const quality = assessPhotoQuality(photo.data);
+                
+                if (quality < 0.8) {
+                    suggestions.push('Upload higher resolution photos');
+                }
+                
+                // Simulate face detection
+                const hasFace = Math.random() > 0.1; // 90% chance of detecting face
+                if (!hasFace) {
+                    suggestions.push('Ensure faces are clearly visible in photos');
+                }
+            });
+            
+            if (suggestions.length > 0) {
+                showNotification('Photo tips: ' + suggestions.join(', '), 'warning');
+            }
+        }
+
+        // Social media integration placeholder
+        function shareToSocialMedia(reportId) {
+            const report = [...appState.missingPersons, ...appState.foundPersons].find(r => r.id === reportId);
+            if (report) {
+                const shareText = `Help find ${report.name || 'this person'}! Last seen in ${report.lastSeenLocation || report.foundLocation}. #MissingPerson #Help`;
+                
+                // In real implementation, this would integrate with social media APIs
+                navigator.share?.({
+                    title: 'Help Find Missing Person',
+                    text: shareText,
+                    url: window.location.href
+                }).then(() => {
+                    showNotification('Shared successfully!', 'success');
+                }).catch(() => {
+                    // Fallback for browsers without Web Share API
+                    navigator.clipboard.writeText(shareText);
+                    showNotification('Share text copied to clipboard', 'success');
+                });
+            }
+        }
+
+        // Accessibility features
+        function enableAccessibilityMode() {
+            document.body.style.fontSize = '18px';
+            document.body.style.lineHeight = '1.6';
+            showNotification('Accessibility mode enabled', 'success');
+        }
+
+        // Print functionality for authorities
+        function printReport(reportId) {
+            const report = [...appState.missingPersons, ...appState.foundPersons].find(r => r.id === reportId);
+            if (report) {
+                const printWindow = window.open('', '_blank');
+                printWindow.document.write(`
+                    <html>
+                        <head><title>Missing Person Report</title></head>
+                        <body style="font-family: Arial, sans-serif; padding: 20px;">
+                            <h1>${report.type === 'missing' ? 'Missing' : 'Found'} Person Report</h1>
+                            <img src="${report.photos[0].data}" style="width: 200px; height: 200px; object-fit: cover;">
+                            <p><strong>Name:</strong> ${report.name || 'Unknown'}</p>
+                            <p><strong>Age:</strong> ${report.age || report.estimatedAge}</p>
+                            <p><strong>Gender:</strong> ${report.gender || report.estimatedGender}</p>
+                            <p><strong>Location:</strong> ${report.lastSeenLocation || report.foundLocation}</p>
+                            <p><strong>Contact:</strong> ${report.reporterContact || report.finderContact}</p>
+                            <p><strong>Report Date:</strong> ${new Date(report.reportDate).toLocaleDateString()}</p>
+                        </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                printWindow.print();
+            }
+        }
+    </script>
+</body>
+</html>

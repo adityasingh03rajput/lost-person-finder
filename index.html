@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lost Person Finder - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .action-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .action-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: opacity 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .status {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .recent-reports {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .report-item {
+            padding: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .report-item:last-child {
+            border-bottom: none;
+        }
+        
+        .report-info h4 {
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .report-info p {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .report-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .status-active {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .status-unidentified {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Lost Person Finder</h1>
+        <p>Helping reunite families through technology</p>
+    </div>
+    
+    <div class="container">
+        <div id="status" class="status"></div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalMissing">-</div>
+                <div class="stat-label">Missing Persons</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalFound">-</div>
+                <div class="stat-label">Found Persons</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalMatches">-</div>
+                <div class="stat-label">Verified Matches</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="todayReports">-</div>
+                <div class="stat-label">Today's Reports</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <div class="action-card">
+                <h3 class="action-title">Report Missing Person</h3>
+                <p>Submit a report for a missing person with photos and details.</p>
+                <button class="btn" onclick="showMessage('Missing person report form would open here')">Report Missing</button>
+            </div>
+            
+            <div class="action-card">
+                <h3 class="action-title">Report Found Person</h3>
+                <p>Report a found person to help identify and reunite them.</p>
+                <button class="btn" onclick="showMessage('Found person report form would open here')">Report Found</button>
+            </div>
+            
+            <div class="action-card">
+                <h3 class="action-title">Search Database</h3>
+                <p>Upload a photo to search for matches in the database.</p>
+                <button class="btn" onclick="showMessage('Photo search interface would open here')">Search Photos</button>
+            </div>
+            
+            <div class="action-card">
+                <h3 class="action-title">Test API</h3>
+                <p>Test the API connection and functionality.</p>
+                <button class="btn" onclick="testAPI()">Test Connection</button>
+            </div>
+        </div>
+        
+        <div class="recent-reports">
+            <h3>Recent Reports</h3>
+            <div id="recentReports">
+                <p>Loading reports...</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API base URL
+        const API_BASE = 'http://localhost:5000/api';
+        
+        // Load dashboard data
+        async function loadDashboard() {
+            try {
+                // Load statistics
+                const statsResponse = await fetch(`${API_BASE}/stats`);
+                const stats = await statsResponse.json();
+                
+                document.getElementById('totalMissing').textContent = stats.total_missing;
+                document.getElementById('totalFound').textContent = stats.total_found;
+                document.getElementById('totalMatches').textContent = stats.total_matches;
+                document.getElementById('todayReports').textContent = stats.today_reports;
+                
+                // Load recent reports
+                await loadRecentReports();
+                
+                showMessage('Dashboard loaded successfully', 'success');
+            } catch (error) {
+                showMessage('Failed to load dashboard: ' + error.message, 'error');
+            }
+        }
+        
+        // Load recent reports
+        async function loadRecentReports() {
+            try {
+                const [missingResponse, foundResponse] = await Promise.all([
+                    fetch(`${API_BASE}/reports/missing`),
+                    fetch(`${API_BASE}/reports/found`)
+                ]);
+                
+                const missing = await missingResponse.json();
+                const found = await foundResponse.json();
+                
+                const reportsContainer = document.getElementById('recentReports');
+                reportsContainer.innerHTML = '';
+                
+                // Combine and sort reports by date
+                const allReports = [
+                    ...missing.map(r => ({...r, type: 'missing'})),
+                    ...found.map(r => ({...r, type: 'found'}))
+                ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+                
+                if (allReports.length === 0) {
+                    reportsContainer.innerHTML = '<p>No reports found</p>';
+                    return;
+                }
+                
+                allReports.forEach(report => {
+                    const reportDiv = document.createElement('div');
+                    reportDiv.className = 'report-item';
+                    
+                    const name = report.type === 'missing' ? report.missing_name : 'Unidentified Person';
+                    const location = report.type === 'missing' ? report.last_seen_location : report.found_location;
+                    const status = report.status;
+                    
+                    reportDiv.innerHTML = `
+                        <div class="report-info">
+                            <h4>${name}</h4>
+                            <p>${location} - ${new Date(report.created_at).toLocaleDateString()}</p>
+                        </div>
+                        <div class="report-status status-${status}">${status.toUpperCase()}</div>
+                    `;
+                    
+                    reportsContainer.appendChild(reportDiv);
+                });
+                
+            } catch (error) {
+                document.getElementById('recentReports').innerHTML = '<p>Failed to load reports</p>';
+            }
+        }
+        
+        // Test API connection
+        async function testAPI() {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                showMessage(`API Test Successful: ${data.message}`, 'success');
+            } catch (error) {
+                showMessage(`API Test Failed: ${error.message}`, 'error');
+            }
+        }
+        
+        // Show status message
+        function showMessage(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Load dashboard on page load
+        document.addEventListener('DOMContentLoaded', loadDashboard);
+    </script>
+</body>
+</html>
